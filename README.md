@@ -1,4 +1,4 @@
-# ⚖️ LexFlow
+# LexFlow
 ## Intelligent Differentiated Case Flow Management System (DCFM)
 
 LexFlow is a production-oriented full-stack platform designed for modern courts to implement **Differentiated Case Flow Management** with intelligent automation.
@@ -7,7 +7,7 @@ It classifies cases into tracks, computes dynamic priority scores, and optimizes
 
 ---
 
-## ✨ Why LexFlow?
+## Why LexFlow?
 
 Traditional court workflows often rely on manual triaging and scheduling, causing avoidable backlog growth.
 
@@ -21,7 +21,7 @@ LexFlow addresses this with:
 
 ---
 
-## 🧱 System Architecture
+## System Architecture
 
 ### Backend
 - **Laravel 11** (API-first)
@@ -44,7 +44,7 @@ LexFlow addresses this with:
 
 ---
 
-## 🗂 Repository Structure
+## Repository Structure
 
 ```text
 LexFlow/
@@ -82,7 +82,7 @@ LexFlow/
 
 ---
 
-## 👥 Roles & Access Model
+## Roles & Access Model
 
 ### Admin
 - Full platform access
@@ -102,7 +102,7 @@ LexFlow/
 
 ---
 
-## 🧠 Core Intelligence
+## Core Intelligence
 
 ### 1) Case Classification
 Default logic:
@@ -140,7 +140,7 @@ Track weights:
 
 ---
 
-## 📡 API Surface (Highlights)
+## API Surface (Highlights)
 
 Authentication:
 - `POST /api/login`
@@ -171,12 +171,12 @@ Analytics:
 - `GET /api/analytics/backlog`
 - `GET /api/analytics/workload`
 
-📘 Full OpenAPI spec:
+Full OpenAPI spec:
 - `backend/docs/openapi.yaml`
 
 ---
 
-## 🎨 Frontend UX Modules
+## Frontend UX Modules
 
 - **Landing**: modern hero + platform stats
 - **Login**: role-aware secure access
@@ -189,7 +189,7 @@ Analytics:
 
 ---
 
-## 🚀 Local Development Setup
+## Local Development Setup
 
 ## Prerequisites
 
@@ -243,7 +243,7 @@ Frontend URL:
 
 ---
 
-## 🔑 Seeded Demo Accounts
+## Seeded Demo Accounts
 
 - `admin@lexflow.local` / `Admin@12345`
 - `clerk@lexflow.local` / `Clerk@12345`
@@ -251,7 +251,7 @@ Frontend URL:
 
 ---
 
-## 🧪 Testing
+## Testing
 
 ### Backend (Laravel Feature Tests)
 
@@ -279,7 +279,7 @@ Coverage includes:
 
 ---
 
-## 🔄 CI/CD
+## CI/CD
 
 GitHub Actions workflow:
 - `.github/workflows/lexflow-ci.yml`
@@ -291,7 +291,7 @@ Pipeline jobs:
 
 ---
 
-## 🔒 Security Posture
+## Security Posture
 
 - Request validation via Form Requests
 - Role middleware + policy-based authorization
@@ -302,7 +302,7 @@ Pipeline jobs:
 
 ---
 
-## 🌍 Production Notes
+## Production Notes
 
 Recommended production stack:
 - **Nginx** + **PHP-FPM**
@@ -320,7 +320,7 @@ php artisan view:cache
 
 ---
 
-## 🛣 Roadmap Ideas
+## Roadmap Ideas
 
 - Judge-side calendar drag-and-drop persistence
 - Multi-courtroom configuration module
@@ -331,7 +331,7 @@ php artisan view:cache
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 1. Create a branch from `main`
 2. Make focused changes with tests
@@ -340,7 +340,7 @@ php artisan view:cache
 
 ---
 
-## 📄 License
+## License
 
 This project is currently unlicensed for private development use. Add an explicit OSS/commercial license before external distribution.
 
