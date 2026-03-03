@@ -1,0 +1,26 @@
+import axios from "axios";
+
+const baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api";
+const tokenStorageKey = "lexflow_token";
+
+export const api = axios.create({
+  baseURL,
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem(tokenStorageKey);
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export const authStorage = {
+  getToken: () => localStorage.getItem(tokenStorageKey),
+  setToken: (token) => localStorage.setItem(tokenStorageKey, token),
+  clearToken: () => localStorage.removeItem(tokenStorageKey),
+};

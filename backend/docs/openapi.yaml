@@ -1,0 +1,387 @@
+openapi: 3.0.3
+info:
+  title: LexFlow API
+  version: 1.0.0
+  description: Intelligent Differentiated Case Flow Management API for courts.
+servers:
+  - url: http://localhost:8000/api
+tags:
+  - name: Auth
+  - name: Cases
+  - name: Scheduling
+  - name: Judges
+  - name: Analytics
+paths:
+  /login:
+    post:
+      tags: [Auth]
+      summary: Authenticate user and issue Sanctum token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  token: { type: string }
+                  user: { $ref: '#/components/schemas/User' }
+  /logout:
+    post:
+      tags: [Auth]
+      security: [{ bearerAuth: [] }]
+      summary: Logout current user token
+      responses:
+        '200':
+          description: Logout successful
+  /register:
+    post:
+      tags: [Auth]
+      security: [{ bearerAuth: [] }]
+      summary: Register new user (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User created
+  /me:
+    get:
+      tags: [Auth]
+      security: [{ bearerAuth: [] }]
+      summary: Get authenticated user profile
+      responses:
+        '200':
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/User' }
+  /cases/classify/preview:
+    post:
+      tags: [Cases]
+      security: [{ bearerAuth: [] }]
+      summary: Predict case track and priority score before creation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CaseCreateRequest'
+      responses:
+        '200':
+          description: Prediction result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  predicted_track: { type: string, enum: [fast, standard, complex] }
+                  priority_score: { type: number, format: float }
+                  estimated_duration: { type: number, format: float }
+  /cases:
+    get:
+      tags: [Cases]
+      security: [{ bearerAuth: [] }]
+      summary: List cases
+      parameters:
+        - in: query
+          name: track
+          schema: { type: string, enum: [fast, standard, complex] }
+        - in: query
+          name: status
+          schema: { type: string, enum: [pending, scheduled, completed] }
+        - in: query
+          name: urgency_level
+          schema: { type: integer, minimum: 1, maximum: 5 }
+        - in: query
+          name: per_page
+          schema: { type: integer, minimum: 1, maximum: 100 }
+      responses:
+        '200':
+          description: Paginated case collection
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Case' }
+    post:
+      tags: [Cases]
+      security: [{ bearerAuth: [] }]
+      summary: Create case
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CaseCreateRequest'
+      responses:
+        '201':
+          description: Case created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data: { $ref: '#/components/schemas/Case' }
+  /cases/{id}:
+    get:
+      tags: [Cases]
+      security: [{ bearerAuth: [] }]
+      summary: Get single case
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Case details
+    put:
+      tags: [Cases]
+      security: [{ bearerAuth: [] }]
+      summary: Update case (admin and assigned judge)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CaseUpdateRequest'
+      responses:
+        '200':
+          description: Case updated
+    delete:
+      tags: [Cases]
+      security: [{ bearerAuth: [] }]
+      summary: Delete case (admin only)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Case deleted
+  /schedule/auto:
+    post:
+      tags: [Scheduling]
+      security: [{ bearerAuth: [] }]
+      summary: Auto-schedule one or all pending cases
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                case_id: { type: integer }
+      responses:
+        '200':
+          description: Auto-scheduling result
+  /schedule/manual:
+    post:
+      tags: [Scheduling]
+      security: [{ bearerAuth: [] }]
+      summary: Manually schedule hearing and validate conflicts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManualScheduleRequest'
+      responses:
+        '200':
+          description: Manual schedule success
+        '422':
+          description: Conflict detected
+  /schedule/events:
+    get:
+      tags: [Scheduling]
+      security: [{ bearerAuth: [] }]
+      summary: List hearings for calendar UI
+      parameters:
+        - in: query
+          name: judge_id
+          schema: { type: integer }
+        - in: query
+          name: start
+          schema: { type: string, format: date }
+        - in: query
+          name: end
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Hearing events
+  /judges:
+    get:
+      tags: [Judges]
+      security: [{ bearerAuth: [] }]
+      summary: List judges with workload indicators
+      responses:
+        '200':
+          description: Judge collection
+  /judges/{id}:
+    get:
+      tags: [Judges]
+      security: [{ bearerAuth: [] }]
+      summary: Get judge details with assigned cases
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Judge details
+  /judges/{id}/availability:
+    put:
+      tags: [Judges]
+      security: [{ bearerAuth: [] }]
+      summary: Upsert judge availability
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AvailabilityRequest'
+      responses:
+        '200':
+          description: Availability updated
+  /analytics/overview:
+    get:
+      tags: [Analytics]
+      security: [{ bearerAuth: [] }]
+      summary: Get KPI overview cards
+      responses:
+        '200':
+          description: Overview metrics
+  /analytics/backlog:
+    get:
+      tags: [Analytics]
+      security: [{ bearerAuth: [] }]
+      summary: Get backlog trend time-series
+      parameters:
+        - in: query
+          name: days
+          schema: { type: integer, minimum: 7, maximum: 120 }
+      responses:
+        '200':
+          description: Backlog trend data
+  /analytics/workload:
+    get:
+      tags: [Analytics]
+      security: [{ bearerAuth: [] }]
+      summary: Get judge workload and distribution data
+      responses:
+        '200':
+          description: Workload metrics
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Token
+  schemas:
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 8 }
+    RegisterRequest:
+      type: object
+      required: [name, email, password, role]
+      properties:
+        name: { type: string }
+        email: { type: string, format: email }
+        password: { type: string, minLength: 8 }
+        role: { type: string, enum: [admin, clerk, judge] }
+        specialization: { type: string, nullable: true }
+    CaseCreateRequest:
+      type: object
+      required: [title, case_type, urgency_level, estimated_duration]
+      properties:
+        title: { type: string }
+        description: { type: string, nullable: true }
+        case_type: { type: string }
+        urgency_level: { type: integer, minimum: 1, maximum: 5 }
+        complexity_level: { type: string, nullable: true }
+        estimated_duration: { type: number, format: float }
+    CaseUpdateRequest:
+      type: object
+      properties:
+        title: { type: string }
+        description: { type: string, nullable: true }
+        case_type: { type: string }
+        urgency_level: { type: integer, minimum: 1, maximum: 5 }
+        complexity_level: { type: string, nullable: true }
+        estimated_duration: { type: number, format: float }
+        status: { type: string, enum: [pending, scheduled, completed] }
+        assigned_judge_id: { type: integer, nullable: true }
+    ManualScheduleRequest:
+      type: object
+      required: [case_id, judge_id, courtroom, hearing_date, start_time, end_time]
+      properties:
+        case_id: { type: integer }
+        judge_id: { type: integer }
+        courtroom: { type: string }
+        hearing_date: { type: string, format: date }
+        start_time: { type: string, example: "10:00" }
+        end_time: { type: string, example: "11:00" }
+    AvailabilityRequest:
+      type: object
+      required: [date, start_time, end_time]
+      properties:
+        date: { type: string, format: date }
+        start_time: { type: string, example: "09:00" }
+        end_time: { type: string, example: "17:00" }
+        is_available: { type: boolean, default: true }
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string, format: email }
+        role: { type: string, enum: [admin, clerk, judge] }
+        specialization: { type: string, nullable: true }
+    Case:
+      type: object
+      properties:
+        id: { type: integer }
+        case_number: { type: string }
+        title: { type: string }
+        description: { type: string, nullable: true }
+        case_type: { type: string }
+        urgency_level: { type: integer }
+        complexity_level: { type: string, nullable: true }
+        estimated_duration: { type: number, format: float }
+        priority_score: { type: number, format: float }
+        track: { type: string, enum: [fast, standard, complex] }
+        status: { type: string, enum: [pending, scheduled, completed] }
+        assigned_judge_id: { type: integer, nullable: true }
