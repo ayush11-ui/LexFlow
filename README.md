@@ -25,7 +25,7 @@ LexFlow addresses this with:
 
 ### Backend
 - **Laravel 11** (API-first)
-- **PostgreSQL**
+- **Supabase PostgreSQL** (hosted)
 - **Laravel Sanctum** authentication
 - Clean architecture layering:
   - `Controllers` → request orchestration
@@ -196,7 +196,7 @@ Full OpenAPI spec:
 - PHP 8.2+ (8.3 recommended)
 - Composer 2+
 - Node.js 20+
-- PostgreSQL 14+
+- Supabase project (free tier works)
 
 ## 1) Backend
 
@@ -207,17 +207,22 @@ Copy-Item .env.example .env
 php artisan key:generate
 ```
 
-Update `backend/.env`:
+Update `backend/.env` (Supabase):
 
 ```env
 DB_CONNECTION=pgsql
-DB_HOST=127.0.0.1
+DB_URL=
+DB_HOST=db.YOUR_PROJECT_REF.supabase.co
 DB_PORT=5432
-DB_DATABASE=lexflow
+DB_DATABASE=postgres
 DB_USERNAME=postgres
-DB_PASSWORD=your_password
+DB_PASSWORD=YOUR_SUPABASE_DB_PASSWORD
+DB_SSLMODE=require
 FRONTEND_URL=http://localhost:5173
 ```
+
+You can copy these values from:
+Supabase Dashboard → **Project Settings** → **Database**.
 
 Run migrations and seed:
 
